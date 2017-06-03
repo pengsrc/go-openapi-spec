@@ -405,6 +405,13 @@ func (r *schemaLoader) resolveRef(currentRef, ref *Ref, node, target interface{}
 			}
 		}
 
+		reflectValue := reflect.ValueOf(target)
+		if reflectValue.Type().String() == "*spec.Parameter" {
+			reflectValue.Elem().FieldByName("Ref").Set(reflect.ValueOf(*ref))
+		} else {
+			reflectValue.Elem().Elem().FieldByName("Ref").Set(reflect.ValueOf(*ref))
+		}
+
 		return nil
 	}
 
@@ -464,6 +471,13 @@ func (r *schemaLoader) resolveRef(currentRef, ref *Ref, node, target interface{}
 
 	if err := swag.DynamicJSONToStruct(res, target); err != nil {
 		return err
+	}
+
+	reflectValue := reflect.ValueOf(target)
+	if reflectValue.Type().String() == "*spec.Parameter" {
+		reflectValue.Elem().FieldByName("Ref").Set(reflect.ValueOf(*ref))
+	} else {
+		reflectValue.Elem().Elem().FieldByName("Ref").Set(reflect.ValueOf(*ref))
 	}
 
 	r.currentRef = currentRef
